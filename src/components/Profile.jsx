@@ -9,8 +9,10 @@ import { useNavigate } from 'react-router-dom';
 import { FileUploader } from "react-drag-drop-files";
 
 const Profile = () => {
-  const fileTypes = ["JPG", "PNG", "GIF"];
+
   const user = useSelector(store => store.user);
+  const profilePhoto = useSelector(store => store.profilePicture);
+  console.log('profilePhoto',profilePhoto)
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const {firstName, lastName, age, gender, about, skills, photoUrl} = user || {};
@@ -89,7 +91,6 @@ const Profile = () => {
 
   const handleAccountDelete = async () => {
     const id = user?._id;
-    console.log('id',id)
     try{
       axios.delete(BASE_URL+'/delete',  { params: { id: id}}, {withCredentials: true});
       dispatch(removeUser());
@@ -98,14 +99,6 @@ const Profile = () => {
       console.log('Account Deleted');
     }
   }
-
-    const [file, setFile] = useState(null);
-
-  const handleChange = (file) => {
-    console.log('file',file)
-    setFile(file);
-  }
-
 
   return (
     <>
@@ -118,8 +111,6 @@ const Profile = () => {
         <div className="flex flex-row card bg-base-300 w-full shadow-xl mx-10 p-4">
             {/* left container */}
             <div className='flex-[2]'>
-
-
             <div className='flex p-2'>
                 {/* field 1 */}
                 <div className="label m-2">
@@ -176,9 +167,9 @@ const Profile = () => {
 
             </div>
             {/* right container */}
-            <div className='flex-[1] bg-base-100 flex justify-center align-middle p-4'>
-              <img src={newProfileObj.photoUrl} alt='user-img'/>
-              {/* <FileUploader handleChange={handleChange} name="file" types={fileTypes} /> */}
+            <div className=' flex flex-col p-2 justify-around items-center bg-neutral'>
+              <img className='h-[250px] w-[250px]' src={profilePhoto ? profilePhoto : newProfileObj.photoUrl} alt='user-img'/>
+              <DragDrop/>
              </div>
         </div>
     </div>
@@ -191,6 +182,40 @@ const Profile = () => {
         {alert.show && <Alert alert={alert}/>}
     </>
   );
+}
+
+const DragDrop = () => {
+  const fileTypes = ["JPG", "PNG", "GIF"];
+  const [file, setFile] = useState(null);
+  const handleChange = (file) => {
+    setFile(file);
+  };
+
+  const handleFileUpload = async () => {
+    const formData = new FormData();
+    formData.append("profilePicture", file);
+
+    console.log('formData',formData)
+    console.log('file',file)
+
+    try {
+      const res = await axios.post(BASE_URL + "/profile/image", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        withCredentials: true,
+      });
+    } catch (err) {
+      console.log('Error ' , err.message)
+    }
+  }
+
+  return (
+    <>
+     <FileUploader handleChange={handleChange} name="file" types={fileTypes} />
+      <button className="btn btn-primary" onClick={() => handleFileUpload()}>Upload</button>
+    </>
+  )
 }
 
 export default Profile

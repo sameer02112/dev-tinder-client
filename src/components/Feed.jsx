@@ -16,19 +16,15 @@ const Feed = () => {
   },[]);
 
   const getFeed = async () => {
-    // if(feed) return;
     try {
       let feed = await axios.get(BASE_URL + "/feed", { withCredentials: true });
       dispatch(addFeed(feed?.data));
     } catch (err) {
     }
   }
-
+  if(feed?.length ==0) return <h3 className='text-xl flex justify-center mt-10'>No Users found</h3>
   return (
     <div className='flex'>
-      <div className="">
-        {/* <Requests/> */}
-      </div>
       <div className="flex overflow-x-auto">
         {feed?.map((user, index) => (
           <FeedCard userData={user} key={index} />

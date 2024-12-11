@@ -5,33 +5,51 @@ import { BASE_URL } from '../constants';
 import axios from 'axios';
 import { removeUser } from '../utils/userSlice';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import SearchIcon from '@mui/icons-material/Search';
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
+import { addRequest, removeRequestById } from '../utils/requestsSlice';
+import { removeProfilePicture } from '../utils/profilePictureSlice';
 
 const Navbar = () => {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
   const user = useSelector(store => store.user);
+  const profilePicture = useSelector(store => store.profilePicture);
+
+  const [searchText, setSearchText] = useState("");
 
   const handleLogout = async () => {
     try{
       await axios.post(BASE_URL + '/logout', {}, {withCredentials: true});
       dispatch(removeUser());
+      dispatch(removeProfilePicture());
       navigate('/login');
     }catch(err){
+      console.log(err)
     }
+  }
+
+  const handleSearchText = (e) => {
+    setSearchText(e.target.value);
+  }
+
+  const handleSearch = () => {
+    // WRITE SEARCH API WITH DEBOUNCING
   }
 
   return (
     <div className="navbar bg-base-200 h-24">
-      <div className="flex-1">
+      <div className="flex-1 min-w-[150px]">
         <Link to='/' className="btn btn-ghost text-xl">Dev Tinder</Link>
       </div>
       {user && 
       <div className="gap-2">
 
-       <div className="form-control">
-          <input type="text" placeholder="Find People.." className="input input-bordered w-[400px]" />
+       <div className="form-control flex flex-row items-center">
+          <input type="text" placeholder="Find People.." className="input input-bordered w-[400px]" onChange={(e) => handleSearchText(e)}/>
+          <SearchIcon className='ml-2 cursor-pointer' fontSize='large' onClick={() => handleSearch()} />
         </div>
 
         <RequestButton />
@@ -45,7 +63,7 @@ const Navbar = () => {
             className="btn btn-ghost btn-circle avatar"
           >
             <div className="w-10 rounded-full">
-                <img alt="user photo" src={user?.photoUrl} />
+                <img id= 'profile-picture' alt="user photo" src={profilePicture} />
             </div>
           </div>
           <ul
@@ -74,7 +92,8 @@ const Navbar = () => {
 
 const RequestButton = () => {
 
-  const [requests, setRequests] = useState([]);
+  const dispatch = useDispatch();
+  const requests = useSelector(store => store.request);
 
   useEffect(() => {
     getRequests();
@@ -85,7 +104,8 @@ const RequestButton = () => {
       const res = await axios.get(BASE_URL + '/user/request/recieved', {
         withCredentials: true
       })
-      setRequests(res?.data);
+      dispatch(addRequest(res?.data));
+
     }catch(err){
 
     }
@@ -97,13 +117,15 @@ const RequestButton = () => {
           <div className="indicator">
              <span className="indicator-item badge badge-secondary">{requests?.length}</span>
           <button className="btn">Connection Request <PersonAddIcon/></button>
-      </div>
         </div>
-        <ul
+        </div>
+
+        {requests?.length > 0 &&
+         <ul
           tabIndex={0}
           className="flex flex-row menu dropdown-content bg-base-100 rounded-box z-[1] mt-2 w-[530px] max-h-[450px] p-1 overflow-auto shadow">
-          {requests?.map(request => <li><RequestCard request = {request}/></li>)}
-        </ul>  
+          {requests?.map(request => <li key={request?._id}><RequestCard request = {request}/></li>)}
+        </ul> } 
       </div>
   )
 }
@@ -111,6 +133,9 @@ const RequestButton = () => {
 const RequestCard = ({request}) => {
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const requests = useSelector(store => store.request);
 
   const {createdAt, fromUserId, _id} = request;
   const {firstName, lastName, age, about, photoUrl } = fromUserId;
@@ -125,24 +150,25 @@ const RequestCard = ({request}) => {
 
     }catch(err){
 
+    }finally{
+      // remove card from list
+      dispatch(removeRequestById(_id))
     }
   }
 
   const handleProfileClick = (id) => async () => {
-
-    console.log('here',fromUserId)
     navigate('/explore/profile/' + fromUserId?._id);
   }
 
   return(
     <div className='flex w-[520px] rounded-lg bg-neutral cursor-pointer p-0 m-[1px]'>
-      <div role="button" className="btn btn-ghost btn-circle avatar pl-2">
+      <div role="button" className="btn btn-ghost btn-circle avatar ml-2">
           <div className="w-28 rounded-full">
               <img className='' alt="user photo" src={photoUrl} />
           </div>
       </div>
       <div className='info m-2 flex-grow'>
-          <p>{firstName + " " + lastName}</p>
+          <p className='font-bold'>{firstName + " " + lastName}</p>
           <p className='text-[12px]'>{about}</p>
           <p className='text-[12px]'>sent on: {formattedDate}</p>
       </div>

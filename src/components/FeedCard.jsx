@@ -1,9 +1,12 @@
 import axios from 'axios';
 import React from 'react'
 import { BASE_URL } from '../constants';
+import { useNavigate } from 'react-router-dom';
+import { getPhoto } from '../helper.js/utilityMethods';
 
 const FeedCard = ({userData}) => {
-    const {firstName, lastName, gender, age, about, skills, email, photoUrl, _id} = userData;
+    const navigate = useNavigate();
+    const {firstName, lastName, gender, age, about, skills, email, photoUrl, uploadedPhotoId,  _id} = userData;
 
 
     const handleFeedAction = async (status) => {
@@ -17,11 +20,16 @@ const FeedCard = ({userData}) => {
       }
     }
 
+    const handleImgClick = () => {
+      navigate('/explore/profile/' + _id);
+    }
+
+
   return (
     <div className='m-2'>
       <div className="card bg-base-300 w-96  h-[550px] shadow-xl">
-        <figure className="px-10 pt-10">
-          <img src={photoUrl} alt="user-photo" className="rounded-xl h-80 aspect-auto" />
+        <figure className="px-10 pt-10 cursor-pointer" onClick={() => handleImgClick()}>
+          <img src={getPhoto(uploadedPhotoId, photoUrl)} alt="user-photo" className="rounded-xl h-80 aspect-auto" />
         </figure>
         <div className="card-body items-center text-center">
           <h2 className="card-title">{firstName + " " + lastName}</h2>
