@@ -20,7 +20,7 @@ const Body = () => {
       dispatch(addUser(res.data));
     }catch(err){
       console.log(err)
-      if(err?.status == 401)
+      if(err?.status == 401 || err?.status == 400)
          navigate('/login');
     }
   }
@@ -31,9 +31,12 @@ const Body = () => {
         responseType: 'blob',
         withCredentials: true, 
     });
-    console.log(res)
-    const url = URL.createObjectURL(res.data);
-    dispatch(addProfilePicture(url));
+    console.log(res.data.size)
+    if(res.data.size != 0){
+      const url = URL.createObjectURL(res.data);
+      dispatch(addProfilePicture(url));
+    }
+   
     
     }catch(err){
       console.log(err.message);

@@ -1,0 +1,21 @@
+BUGS TO FIX - 
+    Cookie related bugs across different modules
+    Height related bugs.
+    Handle default profile image for users.
+
+
+
+FEATURES - 
+    Add profile photo to connection request recieved.
+    Make explore/profile screen.
+    Implement Search bar with debouncing
+    Implement skills related Search
+    Lazy Loading or Pagination
+    Suspense and Fallback
+    USE MEMO and USE CALLBACK HOOKS
+    Add Galary section.
+
+
+CODE REFACTORING - 
+    Make frequently used functions as helper functions
+    REVISIT REDUX STORE 

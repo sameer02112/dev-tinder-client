@@ -7,12 +7,12 @@ import _ from 'lodash';
 import Alert from './Alert';
 import { useNavigate } from 'react-router-dom';
 import { FileUploader } from "react-drag-drop-files";
+import { addProfilePicture, removeProfilePicture } from '../utils/profilePictureSlice';
 
 const Profile = () => {
 
   const user = useSelector(store => store.user);
   const profilePhoto = useSelector(store => store.profilePicture);
-  console.log('profilePhoto',profilePhoto)
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const {firstName, lastName, age, gender, about, skills, photoUrl} = user || {};
@@ -103,9 +103,9 @@ const Profile = () => {
   return (
     <>
     <div className='flex justify-center'>
-      <h2 className="card-title text-4xl justify-center mt-5  flex-1">My Profile</h2>
-      <button className='btn btn-info  mt-6 mx-4' onClick={() => setIsEditModeOn(!isEditModeOn)}>Edit</button>
-      <button className='btn btn-outline btn-error  mt-6 mr-10' onClick={() => handleAccountDelete()}>Delete Account</button>
+      <h2 className="card-title text-2xl justify-center mt-5  flex-1">My Profile</h2>
+      <button className='btn btn-info btn-sm  mt-6 mx-4' onClick={() => setIsEditModeOn(!isEditModeOn)}>Edit</button>
+      <button className='btn btn-outline btn-sm btn-error  mt-6 mr-10' onClick={() => handleAccountDelete()}>Delete Account</button>
     </div>
     <div className='flex justify-center my-5'>
         <div className="flex flex-row card bg-base-300 w-full shadow-xl mx-10 p-4">
@@ -167,16 +167,16 @@ const Profile = () => {
 
             </div>
             {/* right container */}
-            <div className=' flex flex-col p-2 justify-around items-center bg-neutral'>
+            <div className=' flex flex-col p-2 justify-around items-center bg-neutral rounded-xl'>
               <img className='h-[250px] w-[250px]' src={profilePhoto ? profilePhoto : newProfileObj.photoUrl} alt='user-img'/>
-              <DragDrop/>
+              <DragDrop user = {user}/>
              </div>
         </div>
     </div>
 
         <div className="flex align-middle justify-center mt-5">
-          <button className="btn btn-primary m-2" disabled={!isEditModeOn} onClick={handleProfileSave}>Save</button>
-          <button className="btn  m-2" onClick={handleProfileCancel}>Cancel</button>
+          <button className="btn btn-sm btn-primary m-2" disabled={!isEditModeOn} onClick={handleProfileSave}>Save</button>
+          <button className="btn btn-sm  m-2" onClick={handleProfileCancel}>Cancel</button>
         </div>
 
         {alert.show && <Alert alert={alert}/>}
@@ -184,27 +184,51 @@ const Profile = () => {
   );
 }
 
-const DragDrop = () => {
-  const fileTypes = ["JPG", "PNG", "GIF"];
+const DragDrop = ({user}) => {
+  const fileTypes = ["JPG", "PNG", "JPEG"];
+  const dispatch = useDispatch();
+
   const [file, setFile] = useState(null);
   const handleChange = (file) => {
     setFile(file);
   };
 
+  const fetchProfilePicture = async () => {
+    try{
+      const res = await axios.get(BASE_URL + '/profile/image', {
+        responseType: 'blob',
+        withCredentials: true, 
+    });
+    const url = URL.createObjectURL(res.data);
+    dispatch(addProfilePicture(url));
+    
+    }catch(err){
+      console.log(err.message);
+    }
+  }
+
   const handleFileUpload = async () => {
     const formData = new FormData();
     formData.append("profilePicture", file);
 
-    console.log('formData',formData)
-    console.log('file',file)
-
     try {
-      const res = await axios.post(BASE_URL + "/profile/image", formData, {
+      await axios.post(BASE_URL + "/profile/image", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
         withCredentials: true,
       });
+      fetchProfilePicture();
+    } catch (err) {
+      console.log('Error ' , err.message)
+    }
+  }
+
+  const handleFileRemove = async () => {
+    const id = user?._id;
+    try {
+      await axios.delete(BASE_URL + "/profile/image", {params : {id : id}}, {withCredentials: true});
+      dispatch(removeProfilePicture());
     } catch (err) {
       console.log('Error ' , err.message)
     }
@@ -213,7 +237,11 @@ const DragDrop = () => {
   return (
     <>
      <FileUploader handleChange={handleChange} name="file" types={fileTypes} />
-      <button className="btn btn-primary" onClick={() => handleFileUpload()}>Upload</button>
+     <div className='btn-container flex'> 
+      <button className="btn btn-primary mr-2 btn-sm" onClick={() => handleFileUpload()}>Upload</button>
+      <button className="btn btn-secondary  btn-sm" onClick={() => handleFileRemove()}>Remove Photo</button>
+     </div>
+  
     </>
   )
 }

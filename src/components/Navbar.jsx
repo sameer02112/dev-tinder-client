@@ -18,6 +18,9 @@ const Navbar = () => {
   const user = useSelector(store => store.user);
   const profilePicture = useSelector(store => store.profilePicture);
 
+  console.log('user',user);
+  console.log('profilePicture',profilePicture);
+
   const [searchText, setSearchText] = useState("");
 
   const handleLogout = async () => {
@@ -63,7 +66,7 @@ const Navbar = () => {
             className="btn btn-ghost btn-circle avatar"
           >
             <div className="w-10 rounded-full">
-                <img id= 'profile-picture' alt="user photo" src={profilePicture} />
+                <img id= 'profile-picture' alt="user photo" src={profilePicture ? profilePicture : user?.photoUrl} />
             </div>
           </div>
           <ul

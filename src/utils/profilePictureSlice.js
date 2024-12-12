@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const profilePictureSlice = createSlice({
     name: 'profilePicture',
-    initialState: {},
+    initialState: null,
     reducers:{
         addProfilePicture: (state,action) => {
             return action.payload
