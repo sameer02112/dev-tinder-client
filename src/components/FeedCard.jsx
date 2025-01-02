@@ -32,7 +32,8 @@ const FeedCard = ({userData}) => {
     <div className='m-2'>
       <div className="card bg-base-300 w-96  h-[550px] shadow-xl">
         <figure className="px-10 pt-10 cursor-pointer" onClick={() => handleImgClick()}>
-          <img src={getPhoto(uploadedPhotoId, photoUrl)} alt="user-photo" className="rounded-xl h-80 w-[300px] object-cover " />
+          {/* <img src={getPhoto(uploadedPhotoId, photoUrl)} alt="user-photo" className="rounded-xl h-80 w-[300px] object-cover " /> */}
+          <img src={photoUrl} alt="user-photo" className="rounded-xl h-80 w-[300px] object-cover " />
         </figure>
         <div className="card-body items-center text-center">
           <h2 className="card-title">{firstName + " " + lastName}</h2>

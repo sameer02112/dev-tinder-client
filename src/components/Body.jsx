@@ -20,7 +20,6 @@ const Body = () => {
       dispatch(addUser(res.data));
     }catch(err){
       console.log(err)
-      if(err?.status == 401 || err?.status == 400)
          navigate('/login');
     }
   }
@@ -44,7 +43,8 @@ const Body = () => {
   }
 
   useEffect(()=>{
-    if(!userData){
+    console.log('userData',userData)
+    if(!userData || userData != null){
       fetchUser();
     }
   },[]);
