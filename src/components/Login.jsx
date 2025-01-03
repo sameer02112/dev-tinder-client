@@ -59,7 +59,7 @@ const Login = () => {
       {isLoginVisible &&
       <div className="card bg-base-300 h-100 w-96 shadow-xl">
           <div className="card-body">
-            <h2 className="card-title text-3xl justify-center">Login</h2>
+            <h2 className="card-title text-3xl justify-center">Login Me</h2>
 
             <label className="form-control w-full max-w-xs my-5">
                 <div className="label">
